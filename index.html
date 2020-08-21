@@ -1,0 +1,102 @@
+<doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Class</title>
+	</head>
+	<body>
+		<script>
+
+ 
+	class List {
+		notes ;
+
+		constructor(title) {
+			this.title = title;
+			this.init();
+		}
+
+		init() {
+			const data = localStorage.getItem('Cities');
+			this.notes = data ? JSON.parse(data) : [];
+		}
+
+		addNote (name, content) {
+			const date = new Date();
+			const note = {
+				name,
+				content,
+				createdAt: `${date.getFullYear()}.${date.getMonth()}.${date.getDay()}`,
+				status: false,
+			}
+			this.notes = [note, ...this.notes];
+			this.save();
+		}
+
+		deleteNote(content) {
+			this.notes = this.notes.filter(note=> note.content !== content);
+			this.save();
+		}
+
+		editNote(name, content, createdAt, status, confirm) {
+			const updatedNote = {
+				name,
+				content,
+				createdAt, 
+				status
+			};
+			if(confirm) {
+				this.notes = this.notes.map(note=>{
+					let newNote = note;
+					if (note.content === content) {
+						newNote = updatedNote;
+					}
+					return newNote;
+				})
+			}
+			this.save();
+		}
+
+		save() {
+			const data = JSON.stringify(this.notes);
+			localStorage.setItem(this.title, data);
+		}
+	}
+
+
+
+	class TodoList extends List {
+		completedNote(content) {
+			this.notes = this.notes.map(note => ({
+				...note,
+				status: note.content === content ? true : note.status
+			}));
+			this.save();
+		}
+
+		statistic(){
+			return this.notes.reduce((acc, note) => {
+				note.status === true && acc.status++;
+				return acc;
+			}, {
+				total: this.notes.length,
+				status: 0
+			})
+		}
+	}
+		
+
+	const todo = new TodoList('Cities');
+
+	//todo.addNote('Odessa','dancing');
+	//todo.addNote('Sergeevka','swimming');
+	todo.addNote('Kyiv','watching');
+	todo.addNote('village', 'working');
+
+	console.log(todo.notes);
+	todo.deleteNote('watching');
+
+
+		</script>
+	</body>
+</html>
